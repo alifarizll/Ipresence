@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <PROJECT_NAME>
+  namespace: <PROJECT_NAMESPACE>
+  labels:
+    app: <PROJECT_NAME>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <PROJECT_NAME>
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: <PROJECT_NAME>
+    spec:
+      containers:
+        - image: <IMAGE_NAME>:<IMAGE_VERSION>
+          imagePullPolicy: Always
+          name: <PROJECT_NAME>
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: <PROJECT_NAME>
+      imagePullSecrets:
+        - name: torche-deployer-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: <PROJECT_NAME>
+  namespace: <PROJECT_NAMESPACE>
+spec:
+  selector:
+    app: <PROJECT_NAME>
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: <PROJECT_NAME>
+  namespace: <PROJECT_NAMESPACE>
+spec:
+  rules:
+    - host: <OUTPUT_URL>
+      http:
+        paths:
+          - backend:
+              service:
+                name: <PROJECT_NAME>
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - <OUTPUT_URL>
+      secretName: xxxx-tls

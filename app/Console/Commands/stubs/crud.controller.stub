@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{{modelName}};
+use App\Http\Requests\Store{{modelName}}Request;
+use App\Http\Resources\{{modelName}}Resource;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Illuminate\Support\Facades\DB;
+
+class {{modelName}}Controller extends Controller
+{
+    /**
+     * @OA\Get(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}",
+     *      tags={"{{modelName}}"},
+     *      summary="List of {{modelName}}",
+     *      @OA\Parameter(in="query", required=false, name="filter[name]", @OA\Schema(type="string"), example="keyword"),
+     *      @OA\Parameter(in="query", required=false, name="filter[keyword]", @OA\Schema(type="string"), example="keyword"),
+     *      @OA\Parameter(in="query", required=false, name="sort", @OA\Schema(type="string"), example="name"),
+     *      @OA\Parameter(in="query", required=false, name="page", @OA\Schema(type="string"), example="1"),
+     *      @OA\Parameter(in="query", required=false, name="rows", @OA\Schema(type="string"), example="10"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     * )
+     */
+    public function index(Request $request)
+    {
+        $rows = 10;
+        if ($request->filled('rows')) {
+            $rows = $request->rows;
+        }
+
+        $perPage = $request->query('per_page', $rows);
+
+        ${{modelNamePlural}} = QueryBuilder::for({{modelName}}::class)
+            ->allowedFilters([
+                AllowedFilter::callback(
+                    'keyword',
+                    fn (Builder $query, $value) => $query->where('name', 'like', '%' . $value . '%')
+                ),
+                AllowedFilter::exact('id'),
+                'name',
+            ])
+            ->allowedSorts('name', 'created_at')
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        return {{modelName}}Resource::collection(${{modelNamePlural}});
+    }
+
+    /**
+     * @OA\Post(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}",
+     *      tags={"{{modelName}}"},
+     *      summary="Store {{modelName}}",
+     *      @OA\RequestBody(
+     *         description="Body",
+     *         required=true,
+     *         @OA\JsonContent(
+     {{postParam}}
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example="true"),
+     *              @OA\Property(property="message", type="string", example="Data sukses disimpan."),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="422",
+     *          description="error",
+     *          @OA\JsonContent(
+    {{postResponse}}
+     *          ),
+     *      ),
+     * )
+     */
+    public function store(Store{{modelName}}Request $request)
+    {
+        ${{modelVariable}} = {{modelName}}::create($request->all());
+
+        return $this->sendSuccess(new {{modelName}}Resource(${{modelVariable}}), 'Data berhasil disimpan.', 201);
+    }
+
+    /**
+     * @OA\Get(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}/{id}",
+     *      tags={"{{modelName}}"},
+     *      summary="{{modelName}} details",
+     *      @OA\Parameter(in="path", required=true, name="id", @OA\Schema(type="integer"), description="{{modelName}} ID"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     * )
+     */
+    public function show({{modelName}} ${{modelVariable}})
+    {
+        return $this->sendSuccess(new {{modelName}}Resource(${{modelVariable}}), 'Data berhasil ditampilkan.');
+    }
+
+    /**
+     * @OA\Put(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}/{id}",
+     *      tags={"{{modelName}}"},
+     *      summary="Update {{modelName}}",
+     *      @OA\Parameter(in="path", required=true, name="id", @OA\Schema(type="integer"), description="{{modelName}} ID"),
+     *      @OA\RequestBody(
+     *         description="Body",
+     *         required=true,
+     *         @OA\JsonContent(
+     {{postParam}}
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example="true"),
+     *              @OA\Property(property="message", type="string", example="Data sukses disimpan."),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="422",
+     *          description="error",
+     *          @OA\JsonContent(
+    {{postResponse}}
+     *          ),
+     *      ),
+     * )
+     */
+    public function update(Store{{modelName}}Request $request, {{modelName}} ${{modelVariable}})
+    {
+        ${{modelVariable}}->update($request->all());
+
+        return $this->sendSuccess(new {{modelName}}Resource(${{modelVariable}}), 'Data sukses disimpan.');
+    }
+
+    /**
+     * @OA\Delete(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}/{id}",
+     *      tags={"{{modelName}}"},
+     *      summary="{{modelName}} Removal",
+     *      @OA\Parameter(in="path", required=true, name="id", @OA\Schema(type="integer"), description="{{modelName}} ID"),
+     *      @OA\Response(
+     *          response=204,
+     *          description="Response success no content",
+     *      ),
+     * )
+     */
+    public function destroy({{modelName}} ${{modelVariable}})
+    {
+        ${{modelVariable}}->delete();
+
+        return $this->sendSuccess([], null, 204);
+    }
+
+    /**
+     * @OA\Get(
+     *      security={{"bearerAuth": {}}},
+     *      path="/{{routeName}}/schema",
+     *      tags={"{{modelName}}"},
+     *      summary="Schema of {{modelName}}",
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     * )
+     */
+    public function schema(Request $request)
+    {
+        $fields = DB::select('describe {{tableName}}');
+        $schema = [
+            'name' => '{{tableName}}',
+            'module' => '{{modelName}}',
+            'primary_key' => '{{primaryKey}}',
+            'endpoint' => '/{{routeName}}',
+            'scheme' => array_values($fields),
+        ];
+
+        return $this->sendSuccess($schema, 'Data berhasil ditampilkan.');
+    }
+}

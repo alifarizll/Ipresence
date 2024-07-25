@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\MultiTenantModelTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * Class {{modelName}}
+ * @package App\Models
+ *
+ * @OA\Schema(
+ *      @OA\Xml(name="{{modelName}}"),
+ *      description="{{modelName}} Model",
+ *      type="object",
+ *      title="{{modelName}} Model",
+{{paramProperties}} * )
+{{properties}} */
+class {{modelName}} extends Model
+{
+    use HasFactory, SoftDeletes, MultiTenantModelTrait;
+
+    {{tableProperties}}
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = {{fillable}};
+}

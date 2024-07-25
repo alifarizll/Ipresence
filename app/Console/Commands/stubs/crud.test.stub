@@ -1,0 +1,40 @@
+<?php
+
+use App\Models\{{modelName}};
+use Illuminate\Foundation\Testing\WithFaker;
+
+uses(WithFaker::class);
+
+it('can get a list of {{modelName}}', function () {
+    $response = $this->get('/api/{{routeName}}');
+
+    $response->assertStatus(200);
+});
+
+it('can create a {{modelName}}', function () {
+    $data = {{data}};
+    $this->postJson('/api/{{routeName}}', $data)->assertStatus(201);
+    $this->assertDatabaseHas('{{tableName}}', $data);
+});
+
+it('can fetch a {{modelName}}', function () {
+    ${{modelVariable}} = {{modelName}}::factory()->create();
+    
+    $this->getJson('/api/{{routeName}}/' . ${{modelVariable}}->{{primaryKey}})->assertStatus(200);
+});
+
+it('can update a {{modelName}}', function () {
+    ${{modelVariable}} = {{modelName}}::factory()->create();
+    
+    $data = {{data}};
+    
+    $this->putJson('/api/{{routeName}}/' . ${{modelVariable}}->{{primaryKey}}, $data)->assertStatus(200);
+    
+    $this->assertDatabaseHas('{{tableName}}', $data);
+});
+
+it('can delete a {{modelName}}', function () {
+    ${{modelVariable}} = {{modelName}}::factory()->create();
+    $this->deleteJson('/api/{{routeName}}/' . ${{modelVariable}}->{{primaryKey}})->assertStatus(204);
+    $this->assertSoftDeleted('{{tableName}}', ['{{primaryKey}}' => ${{modelVariable}}->{{primaryKey}}]);
+});

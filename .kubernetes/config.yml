@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: <PROJECT_NAMESPACE>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: torche-deployer-secret
+  namespace: <PROJECT_NAMESPACE>
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJyZWdpc3RyeS5kZXYudG9yY2hlLmlkIjogewogICAgICAiYXV0aCI6ICJkRzl5WTJobEsyUmxjR3h2ZVdWeU9rTTRNMEZEU1UxR1RWZzJORVZTVGpGS1ExVXlSVWxQV2xCVk4xbEdXalpIU1VoUVIxWXdORUpRVFVsR1RGRXdRazB6UmtwSVFUbGFSRkZaTlZkQlRWVT0iLAogICAgICAiZW1haWwiOiAiIgogICAgfQogIH0KfQ==
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: <PROJECT_NAME>
+    namespace: <PROJECT_NAMESPACE>
+    labels:
+        name: <PROJECT_NAME>
+data:
+    APP_NAME: "Backend API - <PROJECT_NAME>"
+    APP_ENV: "production"
+    APP_KEY: "base64:A44QoZwdbbmn20yNozngHb6mwPGqVjn0Z9G2TChpZTQ="
+    APP_URL: "https://<OUTPUT_URL>"
+    APP_DEBUG: "true"
+    LOG_CHANNEL: "stack"
+    LOG_DEPRECATIONS_CHANNEL: "null"
+    LOG_LEVEL: "debug"
+    DB_CONNECTION: "pgsql"
+    DB_HOST: "patroni1-master.pgsql.svc.cluster.local"
+    DB_PORT: "5432"
+    DB_DATABASE: "xxxx"
+    DB_USERNAME: "xxxx"
+    DB_PASSWORD: "xxxx"
+    DB_ENCRYPTION_KEY: "XXXXX-XXXXXX-V01"
+    BROADCAST_DRIVER: "log"
+    REDIS_HOST: "127.0.0.1"
+    REDIS_USERNAME: "xxxxx"
+    REDIS_PASSWORD: "xxxxx"
+    REDIS_PORT: "6379"
+    CACHE_STORE: "redis"
+    QUEUE_CONNECTION: "sync"
+    SESSION_DRIVER: redis
+    SESSION_LIFETIME: "1800"
+    SESSION_ENCRYPT: "false"
+    SESSION_PATH: "/"
+    SESSION_DOMAIN: ""
+    MAIL_MAILER: "smtp"
+    MAIL_HOST: "smtp.gmail.com"
+    MAIL_PORT: "465"
+    MAIL_USERNAME: "xxxxxx@gmail.com"
+    MAIL_PASSWORD: "xxxxx"
+    MAIL_ENCRYPTION: "ssl"
+    L5_SWAGGER_GENERATE_ALWAYS: "true"
+    L5_SWAGGER_USE_ABSOLUTE_PATH: "false"
+    L5_SWAGGER_CONST_HOST: "/api"
+    AUDIT_TRAIL_SERVICE: "http://audit-trail.xxxx.svc.cluster.local"
