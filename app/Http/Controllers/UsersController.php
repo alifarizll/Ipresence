@@ -30,7 +30,7 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            
+
             'id' => 'required|integer',
             'nisn' => 'required|integer',
             'username' => 'required|string',
@@ -82,7 +82,21 @@ class UsersController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = users::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        $user->nisn = $request->nisn;
+        $user->username = $request->username;
+        $user->nama_lengkap = $request->nama_lengkap;
+        $user->tanggal_bergabung = $request->tanggal_bergabung;
+        $user->asal_sekolah = $request->asal_sekolah;
+        $user->roles = $request->roles;
+        
+        $user->save();
+
+        return response()->json($user, 200);
     }
 
     /**
@@ -90,6 +104,13 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = users::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Post deleted'], 200);
     }
 }
