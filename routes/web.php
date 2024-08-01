@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsersController;
 
 Route::get('/', function () {
-    return '.:: Skeleton Services v1.0 ::.';
+    return 'Ada kesalahan di logic anda. Silahkan hubungi admin.';
 });
+
