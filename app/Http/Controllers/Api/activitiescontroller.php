@@ -15,7 +15,7 @@ class activitiescontroller extends Controller
      */
     public function index()
     {
-        $aktivitas = activities::with('task')->get();
+        $aktivitas = activities::with(['task', 'user'])->get();
         return response()->json($aktivitas);
     }
 

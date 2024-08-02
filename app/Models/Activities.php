@@ -29,4 +29,9 @@ class Activities extends Model
         return $this->belongsTo(Task::class, 'tasks_id');
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(users::class, 'users_id', 'id');
+    }
+
 }
