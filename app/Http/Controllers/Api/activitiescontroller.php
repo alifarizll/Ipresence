@@ -60,7 +60,7 @@ class activitiescontroller extends Controller
         $aktivitas = Activities::with('task')->find($id);
             
         if (!$aktivitas) {
-            return response()->json(['message' => 'Activity not found'], 404);
+            return response()->json(['message' => 'activities not found'], 404);
         }
             return response()->json($aktivitas);
     }
@@ -80,7 +80,7 @@ class activitiescontroller extends Controller
         $aktivitas = activities::find($id);
 
         if (!$aktivitas) {
-            return response()->json(['message' => 'Activity not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
         }
     
         $validatedData = $request->validate([
@@ -98,7 +98,7 @@ class activitiescontroller extends Controller
     
         $aktivitas->update($updateData);
     
-        return response()->json(['message' => 'update success'], Response::HTTP_OK);
+        return response()->json(['message' => 'update activities success'], Response::HTTP_OK);
     }
 
     /**
@@ -109,10 +109,10 @@ class activitiescontroller extends Controller
         $aktivitas = activities::find($id);
 
         if (!$aktivitas) {
-            return response()->json(['message' => 'Task not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
         }
 
         $aktivitas->delete();
-        return response()->json(['message' => 'Task deleted successfully']);
+        return response()->json(['message' => 'activities deleted successfully']);
     }
 }
