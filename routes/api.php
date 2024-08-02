@@ -11,3 +11,4 @@ Route::get('/', function () {
 
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('activities', activitiescontroller::class);
+Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
