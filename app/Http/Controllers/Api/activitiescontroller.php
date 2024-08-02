@@ -88,7 +88,6 @@ class activitiescontroller extends Controller
             'nama_aktivitas' => 'nullable|string|max:255',
             'uraian' => 'nullable|string|max:255',
             'tanggal' => 'nullable|date',  
-            'status' => 'nullable|string|max:255',
             'users_id' => 'nullable|integer',
         ]);
     
@@ -99,6 +98,26 @@ class activitiescontroller extends Controller
         $aktivitas->update($updateData);
     
         return response()->json(['message' => 'update activities success'], Response::HTTP_OK);
+    }
+
+    public function updateStatus(Request $request, int $id)
+    {
+        $aktivitas = Activities::find($id);
+
+        if (!$aktivitas) {
+            return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Validasi status jika diperlukan
+        $request->validate([
+            'status' => 'required|string|in:PROSES,SELESAI',
+        ]);
+
+        // Update status
+        $aktivitas->status = $request->status;
+        $aktivitas->save();
+
+        return response()->json(['message' => 'Status updated successfully', 'data' => $aktivitas], Response::HTTP_OK);
     }
 
     /**
