@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\AuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -18,13 +19,19 @@ Route::get('/user', function (Request $request) {
 //posts
 
 
-Route::apiResource('/roles', RolesController::class);
+Route::apiResource('/roles', RolesController::class); 
 Route::apiResource('/users', UsersController::class);
-
-
-
-
-
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('activities', activitiescontroller::class);
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+
+
+
+

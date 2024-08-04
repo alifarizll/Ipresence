@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\users;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -34,9 +35,9 @@ class UsersController extends Controller
             'id' => 'required|integer',
             'nisn' => 'required|integer',
             'username' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'required|email',
             'nama_lengkap' => 'required|string',
-            'password' => 'required|string',
+            'password' => 'required|min:8',
             'role_id' => 'required|integer',
             'tanggal_bergabung' => 'required|date',
             'asal_sekolah' => 'required|string',
@@ -48,12 +49,15 @@ class UsersController extends Controller
         $users = users::create($request->all());
         return response()->json($users, 201);
 
+
         try {
             $users = users::create($validated);
             return response()->json(['message' => 'User created successfully', 'user' => $users], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Tidak dapat input data', 'error' => $e->getMessage()], 500);
         }
+
+
 
     }
 
