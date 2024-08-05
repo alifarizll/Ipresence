@@ -34,7 +34,7 @@ class TaskController extends Controller
     {
         try{
             $validatedData = $request->validate([
-            'id' => 'required|int',
+
             'nama' => 'required|string',
             'deskripsi' => 'required|string',
         ]);

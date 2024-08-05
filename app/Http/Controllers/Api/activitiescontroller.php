@@ -34,16 +34,22 @@ class activitiescontroller extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id' => 'required|integer',
+
                 'tasks_id' => 'required|integer',
                 'nama_aktivitas' => 'required|string',
                 'uraian' => 'required|string',
-                'tanggal' => 'required|date',
                 'status' => 'required|string',
                 'users_id' => 'required|integer',
             ]);
 
-            $aktivitas = Activities::create($validatedData);
+            $aktivitas = Activities::create([
+                'tasks_id' => $validatedData['tasks_id'],
+                'nama_aktivitas' => $validatedData['nama_aktivitas'],
+                'uraian' => $validatedData['uraian'],
+                'status' => $validatedData['status'],
+                'users_id' => $validatedData['users_id'],
+                'tanggal' => $validatedData['tanggal'] ?? now(),
+            ]);
 
             return response()->json(['message' => 'success create new activities', 'data' => $aktivitas], Response::HTTP_CREATED);
 

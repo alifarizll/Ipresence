@@ -21,6 +21,7 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('/roles', RolesController::class); 
 Route::apiResource('/users', UsersController::class);
+Route::post('/createUser', [UsersController::class, 'createUser']);
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('activities', activitiescontroller::class);
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);

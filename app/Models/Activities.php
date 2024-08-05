@@ -13,7 +13,6 @@ class Activities extends Model
     protected $table = 'activities';
 
     protected $fillable = [
-        'id',
         'tasks_id',
         'nama_aktivitas',
         'uraian',
@@ -24,9 +23,12 @@ class Activities extends Model
 
     public $timestamps = false;
 
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+
     public function task(): BelongsTo
     {
-        return $this->belongsTo(Task::class, 'tasks_id');
+        return $this->belongsTo(Task::class, 'tasks_id', 'id');
     }
 
     public function user(): BelongsTo

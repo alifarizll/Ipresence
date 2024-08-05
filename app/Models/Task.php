@@ -14,15 +14,18 @@ class Task extends Model
     protected $table = 'tasks';
 
     protected $fillable = [
-        'id', 
         'nama', 
         'deskripsi'
     ];
 
     public $timestamps = false;
 
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+
+
     public function activities(): HasMany
     {
-        return $this->hasMany(Activities::class, 'tasks_id');
+        return $this->hasMany(Activities::class, 'tasks_id', 'id');
     }
 }
