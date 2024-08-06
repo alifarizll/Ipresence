@@ -18,6 +18,7 @@ class CreateSessionsTable extends Migration
             $table->integer('last_activity')->index();
         });
     }
+    
     }
 
     public function down()

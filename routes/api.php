@@ -21,16 +21,20 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('/roles', RolesController::class); 
 Route::apiResource('/users', UsersController::class);
-Route::post('/createUser', [UsersController::class, 'createUser']);
+Route::post('/createUser', [UsersController::class, 'createUser']);   // ini untuk menambahkan user
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('activities', activitiescontroller::class);
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
+Route::post('refresh', [AuthController::class, 'refresh'])->middleware('jwt.auth');
+Route::middleware('jwt.auth')->group(function () {
+    Route::get('user', function () {
+        return auth()->user();
+    });
 });
+
 
 
 

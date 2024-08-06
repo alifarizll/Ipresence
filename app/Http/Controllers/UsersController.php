@@ -58,6 +58,7 @@ class UsersController extends Controller
         }
 
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -123,11 +124,14 @@ class UsersController extends Controller
             return response()->json(['message' => 'Post not found'], 404);
         }
 
-        $user->nisn = $request->nisn;
-        $user->nama_lengkap = $request->nama_lengkap;
-        $user->tanggal_bergabung = $request->tanggal_bergabung;
-        $user->asal_sekolah = $request->asal_sekolah;
-        $user->roles = $request->roles;
+        $user->nisn = $request->nisn ?? $user->nisn;
+        $user->email = $request->email ?? $user->email;
+        $user->nama_lengkap = $request->nama_lengkap ?? $user->nama_lengkap;
+        $user->tanggal_bergabung = $request->tanggal_bergabung ?? $user->tanggal_bergabung;
+        $user->asal_sekolah = $request->asal_sekolah ?? $user->asal_sekolah;
+        $user->usertype = $request->usertype ?? $user->usertype;
+        $user->role_id = $request->role_id ?? $user->role_id;
+        $user->img = $request->img ?? $user->img;
         
         $user->save();
 
