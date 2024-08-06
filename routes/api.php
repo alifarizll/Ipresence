@@ -20,13 +20,18 @@ Route::get('/user', function (Request $request) {
 
 
 Route::apiResource('/roles', RolesController::class); 
-Route::apiResource('/users', UsersController::class);
+Route::apiResource('/users', UsersController::class); //ini bisa buat nambah foto user , bisa juga hapus user
 Route::post('/createUser', [UsersController::class, 'createUser']);   // ini untuk menambahkan user
 Route::apiResource('tasks', TaskController::class);
-Route::apiResource('activities', activitiescontroller::class);
+Route::apiResource('activities', activitiescontroller::class);  // ini untuk menambahkan aktivitas
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
+Route::post('/activities/{id}/updatetask', [ActivitiesController::class, 'updatetask']);  //ini untuk update aktivitas
 
-Route::post('login', [AuthController::class, 'login']);
+
+
+Route::get('/activities/{id}/showtable', [ActivitiesController::class, 'showtable']); // table aktivitas halaman user
+Route::get('/activities/{id}/showtableadmin', [ActivitiesController::class, 'showtableadmin']); // table aktivitas halaman admin
+Route::post('login', [AuthController::class, 'login']);  //ini untuk validasi
 Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
 Route::post('refresh', [AuthController::class, 'refresh'])->middleware('jwt.auth');
 Route::middleware('jwt.auth')->group(function () {

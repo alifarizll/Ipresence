@@ -47,6 +47,7 @@ class UsersController extends Controller
             'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
             'role_id' => $validated['role_id'],
             'usertype' => 'user',
+            'img' => $validated['img'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
             
         
         ]);
@@ -74,6 +75,8 @@ class UsersController extends Controller
             'role_id' => 'required|integer',
             'tanggal_bergabung' => 'required|date',
             'asal_sekolah' => 'required|string',
+            'img' => 'required|string',
+
 
 
         ]);
@@ -152,4 +155,5 @@ class UsersController extends Controller
 
         return response()->json(['message' => 'Post deleted'], 200);
     }
+
 }

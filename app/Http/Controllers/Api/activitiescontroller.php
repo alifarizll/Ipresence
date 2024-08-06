@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\activities;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 
 class activitiescontroller extends Controller
@@ -73,6 +74,45 @@ class activitiescontroller extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+
+     public function showtableadmin(int $id)
+     {
+         $aktivitas = Activities::with('user:id,nama_lengkap,nisn,role_id')->find($id);
+             
+         if (!$aktivitas) {
+             return response()->json(['message' => 'activities not found'], 404);
+         }
+ 
+         $aktivitas = [
+             'user' => [
+                 'nama_lengkap' => $aktivitas->user->nama_lengkap,
+                 'nisn' => $aktivitas->user->nisn,
+                 'role_id'=> $aktivitas->user->role_id
+             ],
+             'nama_aktivitas' => $aktivitas->nama_aktivitas,
+             'uraian' => $aktivitas->uraian,
+             'tanggal' => $aktivitas->tanggal,
+             'status' => $aktivitas->status,
+         ];
+ 
+             return response()->json($aktivitas);
+     }
+     public function showtable(int $id)
+     {
+         $aktivitas = Activities::with('task')->find($id);
+             
+         if (!$aktivitas) {
+             return response()->json(['message' => 'activities not found'], 404);
+         }
+ 
+         $aktivitas = [
+             'tanggal' => $aktivitas->tanggal,
+             'uraian' => $aktivitas->uraian
+         ];
+ 
+             return response()->json($aktivitas);
+     }
+ 
     public function edit(string $id)
     {
         //
@@ -124,6 +164,34 @@ class activitiescontroller extends Controller
         $aktivitas->save();
 
         return response()->json(['message' => 'Status updated successfully', 'data' => $aktivitas], Response::HTTP_OK);
+    }
+
+
+    public function updatetask(Request $request, int $id)
+    {
+        $aktivitas = activities::find($id);
+
+        if (!$aktivitas) {
+            return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
+        }
+    
+        $validatedData = $request->validate([
+            'tanggal' => 'nullable|date',
+            'nama_aktivitas' => 'nullable|string|max:255',
+            'uraian' => 'nullable|string|max:255',
+        ]);
+
+        if (!isset($validatedData['tanggal'])) {
+            $validatedData['tanggal'] = Carbon::today()->toDateString();
+        }
+    
+        $updateData = array_filter($validatedData, function ($value) {
+            return !is_null($value);
+        });
+    
+        $aktivitas->update($updateData);
+    
+        return response()->json(['message' => 'update activities success'], Response::HTTP_OK);
     }
 
     /**
