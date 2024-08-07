@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 
+
 class users extends Model implements JWTSubject
 {
 
@@ -32,6 +33,10 @@ class users extends Model implements JWTSubject
 
     public $incrementing = true;
 
+    protected $hidden = [
+        'remember_token',
+    ];
+
     public function roles()
     {
         return $this->belongsTo(roles::class, 'role_id', 'id');
@@ -43,6 +48,7 @@ class users extends Model implements JWTSubject
             get: fn ($image) => url('/storage/posts/' . $image),
         );
     }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

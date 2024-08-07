@@ -31,14 +31,8 @@ Route::post('/activities/{id}/updatetask', [ActivitiesController::class, 'update
 
 Route::get('/activities/{id}/showtable', [ActivitiesController::class, 'showtable']); // table aktivitas halaman user
 Route::get('/activities/{id}/showtableadmin', [ActivitiesController::class, 'showtableadmin']); // table aktivitas halaman admin
-Route::post('login', [AuthController::class, 'login']);  //ini untuk validasi
-Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
-Route::post('refresh', [AuthController::class, 'refresh'])->middleware('jwt.auth');
-Route::middleware('jwt.auth')->group(function () {
-    Route::get('user', function () {
-        return auth()->user();
-    });
-});
+
+Route::post('/loginUser', [AuthController::class, 'loginUser']);
 
 
 

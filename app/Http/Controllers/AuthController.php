@@ -2,31 +2,38 @@
 
 namespace App\Http\Controllers;  
 
-use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\users;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        $request->validate([
-            'nama_lengkap' => 'required|string',
-            'email' => 'required|string|email',
-        ]);
+    public function loginUser(Request $request)
+{
+    $request->validate([
+        'nama_lengkap' => 'required|string',
+        'email' => 'required|string|email',
+    ]);
 
-        $user = users::where('nama_lengkap', $request->nama_lengkap)
-                    ->where('email', $request->email)
-                    ->first();
+    // Mencari pengguna berdasarkan nama_lengkap dan email
+    $user = users::where('nama_lengkap', $request->nama_lengkap)
+                ->where('email', $request->email)
+                ->first();
 
-
-        if (!$user) {
-            return response()->json(['error' => 'email atau nama lengkap salah'], 401);
-        }
-
-
-        return response()->json(['massage' => 'Successfully logged in']);
+    if (!$user) {
+        return response()->json(['error' => 'email atau nama lengkap salah'], 401);
     }
+
+    // Mengirim respons berdasarkan jenis pengguna
+    if ($user->usertype === 'admin') {
+        return response()->json(['message' => 'Successfully logged in', 'user' => $user, 'role' => 'admin']);
+    } else if ($user->usertype === 'user') {
+        return response()->json(['message' => 'Successfully logged in', 'user' => $user, 'role' => 'user']);
+    } else {
+        return response()->json(['error' => 'Jenis pengguna tidak dikenali'], 401);
+    }
+}
 
 }
