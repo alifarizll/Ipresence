@@ -1,4 +1,3 @@
--- Active: 1721289528824@@127.0.0.1@3306@magang_tasks
 <?php
 
 use App\Http\Resources\PostResource;
