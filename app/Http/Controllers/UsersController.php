@@ -29,7 +29,7 @@ class UsersController extends Controller
             $validated = $request->validate([
                 'nisn' => 'required|integer',
                 'email' => 'required|email|unique:users,email',
-                'nama_lengkap' => 'required|string',
+                'username' => 'required|string',
                 'role_id' => 'required|integer',
                 'asal_sekolah' => 'required|string',
             ]);
@@ -38,7 +38,8 @@ class UsersController extends Controller
             $user = Users::create([
                 'nisn' => $validated['nisn'],
                 'email' => $validated['email'],
-                'nama_lengkap' => $validated['nama_lengkap'],
+                'username' => $validated['username'],
+                'nama_lengkap' => $validated['nama_lengkap'] ?? null,
                 'asal_sekolah' => $validated['asal_sekolah'],
                 'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
                 'role_id' => $validated['role_id'],
@@ -99,6 +100,7 @@ class UsersController extends Controller
 
         $user->nisn = $request->nisn ?? $user->nisn;
         $user->email = $request->email ?? $user->email;
+        $user->username = $request->username ?? $user->username;
         $user->nama_lengkap = $request->nama_lengkap ?? $user->nama_lengkap;
         $user->tanggal_bergabung = $request->tanggal_bergabung ?? $user->tanggal_bergabung;
         $user->asal_sekolah = $request->asal_sekolah ?? $user->asal_sekolah;

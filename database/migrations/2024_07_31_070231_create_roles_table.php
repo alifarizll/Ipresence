@@ -23,6 +23,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('nama_lengkap');
                 $table->string('asal_sekolah');
+                $table->string('username')->unique();
                 $table->string('email')->unique();
                 $table->unsignedBigInteger('role_id');
                 $table->integer('nisn')->unique();

@@ -13,12 +13,12 @@ class AuthController extends Controller
     public function loginUser(Request $request)
 {
     $request->validate([
-        'nama_lengkap' => 'required|string',
+        'username' => 'required|string',
         'email' => 'required|string|email',
     ]);
 
     // Mencari pengguna berdasarkan nama_lengkap dan email
-    $user = users::where('nama_lengkap', $request->nama_lengkap)
+    $user = users::where('username', $request->username)
                 ->where('email', $request->email)
                 ->first();
 

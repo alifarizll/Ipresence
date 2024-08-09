@@ -20,6 +20,7 @@ class users extends Model implements JWTSubject
     protected $fillable = [
         'nisn',
         'email', 
+        'username',
         'nama_lengkap', 
         'asal_sekolah', 
         'tanggal_bergabung', 
