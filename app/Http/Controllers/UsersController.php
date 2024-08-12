@@ -29,6 +29,7 @@ class UsersController extends Controller
             $validated = $request->validate([
                 'nisn' => 'required|integer',
                 'email' => 'required|email',
+                'username' => 'required|string',
                 'nama_lengkap' => 'required|string',
                 'role_id' => 'required|integer',
                 'asal_sekolah' => 'required|string',
