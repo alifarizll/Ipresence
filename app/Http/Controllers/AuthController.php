@@ -14,7 +14,7 @@ class AuthController extends Controller
 {
     $request->validate([
         'username' => 'required|string',
-        'email' => 'required|string|email',
+        'email' => 'required|email',
     ]);
 
     // Mencari pengguna berdasarkan nama_lengkap dan email

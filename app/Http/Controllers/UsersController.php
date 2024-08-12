@@ -28,8 +28,8 @@ class UsersController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'nisn' => 'required|integer',
-                'email' => 'required|email|unique:users,email',
-                'username' => 'required|string',
+                'email' => 'required|email',
+                'nama_lengkap' => 'required|string',
                 'role_id' => 'required|integer',
                 'asal_sekolah' => 'required|string',
             ]);
@@ -37,19 +37,19 @@ class UsersController extends Controller
             // Membuat user baru
             $user = Users::create([
                 'nisn' => $validated['nisn'],
-                'email' => $validated['email'],
-                'username' => $validated['username'],
-                'nama_lengkap' => $validated['nama_lengkap'] ?? null,
-                'asal_sekolah' => $validated['asal_sekolah'],
+                'username' => $validated['username'] ?? null,
+                'email' => $validated['email'] ?? 'tidak diketahui',
+                'nama_lengkap' => $validated['nama_lengkap'] ?? 'tidak diketahui',
+                'asal_sekolah' => $validated['asal_sekolah'] ?? 'tidak diketahui',
                 'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
-                'role_id' => $validated['role_id'],
+                'role_id' => $validated['role_id'] ?? 1,
                 'usertype' => 'user',
                 'img' => $validated['img'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
             ]);
 
             return response()->json(['message' => 'success', 'data' => $user], Response::HTTP_CREATED);
         } catch (ValidationException $e) {
-            return response()->json(['message' => 'Missing or invalid field'], 404);
+            return response()->json(['message' => 'Missing or invalid field', 'error' => $e->getMessage()], 404);
         }
     }
 
@@ -61,6 +61,7 @@ class UsersController extends Controller
         $validated = $request->validate([
             'nisn' => 'required|integer',
             'email' => 'required|email',
+            'username' => 'required|string',
             'nama_lengkap' => 'required|string',
             'role_id' => 'required|integer',
             'tanggal_bergabung' => 'required|date',

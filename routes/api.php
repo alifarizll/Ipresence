@@ -31,7 +31,7 @@ Route::post('/activities/{id}/updatetask', [ActivitiesController::class, 'update
 Route::get('/activities/{id}/showtable', [ActivitiesController::class, 'showtable']); // table aktivitas halaman user
 Route::get('/activities/{id}/showtableadmin', [ActivitiesController::class, 'showtableadmin']); // table aktivitas halaman admin
 
-Route::post('/loginUser', [AuthController::class, 'loginUser']);
+Route::post('/loginUser', [AuthController::class, 'loginUser']);  //ini untuk login
 
 
 
