@@ -30,14 +30,9 @@ Route::middleware('auth:api')->group(function () {
 Route::apiResource('/roles', RolesController::class); 
 Route::post('/createUser', [UsersController::class, 'createUser']);   // ini untuk menambahkan user
 Route::apiResource('tasks', TaskController::class);
+
 Route::apiResource('activities', activitiescontroller::class);  // ini untuk menambahkan aktivitas
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
-Route::post('/activities/{id}/updatetask', [ActivitiesController::class, 'updatetask']);  //ini untuk update aktivitas
-
-
-
-Route::get('/activities/{id}/showtable', [ActivitiesController::class, 'showtable']); // table aktivitas halaman user
-Route::get('/activities/{id}/showtableadmin', [ActivitiesController::class, 'showtableadmin']); // table aktivitas halaman admin
 
 Route::post('/loginUser', [AuthController::class, 'loginUser']);  //ini untuk login
 

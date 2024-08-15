@@ -3,127 +3,68 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\activities;
+use App\Models\Activities;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
-class activitiescontroller extends Controller
+class ActivitiesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $aktivitas = activities::with(['task', 'user'])->get();
-        return response()->json($aktivitas);
+        $query = Activities::query();
+    
+        if ($request->has('users_id')) {
+            $query->where('users_id', $request->users_id);
+        }
+    
+        $aktivitas = $query->with(['user'])->get();
+    
+        if ($aktivitas->isEmpty()) {
+            Log::info('No activities found for users_id: ' . $request->users_id);// log history
+        }
+    
+        return response()->json($aktivitas, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         try {
             $validatedData = $request->validate([
-
-                'tasks_id' => 'required|integer',
                 'nama_aktivitas' => 'required|string',
                 'uraian' => 'required|string',
-                'status' => 'required|string',
-                'users_id' => 'required|integer',
+                'tanggal' => 'required|date'
             ]);
 
             $aktivitas = Activities::create([
-                'tasks_id' => $validatedData['tasks_id'],
                 'nama_aktivitas' => $validatedData['nama_aktivitas'],
                 'uraian' => $validatedData['uraian'],
-                'status' => $validatedData['status'],
-                'users_id' => $validatedData['users_id'],
                 'tanggal' => $validatedData['tanggal'] ?? now(),
             ]);
 
             return response()->json(['message' => 'success create new activities', 'data' => $aktivitas], Response::HTTP_CREATED);
 
-        } catch (ValidationException) {
-            return response()->json(['message' => 'Missing or invalid field'], 404);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Missing or invalid field', 'errors' => $e->errors()], 422);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(int $id)
     {
-        $aktivitas = Activities::with('task')->find($id);
+        $aktivitas = Activities::with('user')->find($id);
             
         if (!$aktivitas) {
             return response()->json(['message' => 'activities not found'], 404);
         }
-            return response()->json($aktivitas);
-    }
-    /**
-     * Show the form for editing the specified resource.
-     */
-
-     public function showtableadmin(int $id)
-     {
-         $aktivitas = Activities::with('user:id,nama_lengkap,nisn,role_id')->find($id);
-             
-         if (!$aktivitas) {
-             return response()->json(['message' => 'activities not found'], 404);
-         }
- 
-         $aktivitas = [
-             'user' => [
-                 'nama_lengkap' => $aktivitas->user->nama_lengkap,
-                 'nisn' => $aktivitas->user->nisn,
-                 'role_id'=> $aktivitas->user->role_id
-             ],
-             'nama_aktivitas' => $aktivitas->nama_aktivitas,
-             'uraian' => $aktivitas->uraian,
-             'tanggal' => $aktivitas->tanggal,
-             'status' => $aktivitas->status,
-         ];
- 
-             return response()->json($aktivitas);
-     }
-     public function showtable(int $id)
-     {
-         $aktivitas = Activities::with('task')->find($id);
-             
-         if (!$aktivitas) {
-             return response()->json(['message' => 'activities not found'], 404);
-         }
- 
-         $aktivitas = [
-             'tanggal' => $aktivitas->tanggal,
-             'uraian' => $aktivitas->uraian
-         ];
- 
-             return response()->json($aktivitas);
-     }
- 
-    public function edit(string $id)
-    {
-        //
+        
+        return response()->json($aktivitas);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, int $id)
     {
-        $aktivitas = activities::find($id);
+        $aktivitas = Activities::find($id);
 
         if (!$aktivitas) {
             return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
@@ -137,11 +78,9 @@ class activitiescontroller extends Controller
             'users_id' => 'nullable|integer',
         ]);
     
-        $updateData = array_filter($validatedData, function ($value) {
-            return !is_null($value);
-        });
+        $validatedData['tanggal'] = $validatedData['tanggal'] ?? Carbon::today()->toDateString();
     
-        $aktivitas->update($updateData);
+        $aktivitas->update($validatedData);
     
         return response()->json(['message' => 'update activities success'], Response::HTTP_OK);
     }
@@ -154,52 +93,19 @@ class activitiescontroller extends Controller
             return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
         }
 
-        // Validasi status jika diperlukan
         $request->validate([
             'status' => 'required|string|in:PROSES,SELESAI',
         ]);
 
-        // Update status
         $aktivitas->status = $request->status;
         $aktivitas->save();
 
         return response()->json(['message' => 'Status updated successfully', 'data' => $aktivitas], Response::HTTP_OK);
     }
 
-
-    public function updatetask(Request $request, int $id)
-    {
-        $aktivitas = activities::find($id);
-
-        if (!$aktivitas) {
-            return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
-        }
-    
-        $validatedData = $request->validate([
-            'tanggal' => 'nullable|date',
-            'nama_aktivitas' => 'nullable|string|max:255',
-            'uraian' => 'nullable|string|max:255',
-        ]);
-
-        if (!isset($validatedData['tanggal'])) {
-            $validatedData['tanggal'] = Carbon::today()->toDateString();
-        }
-    
-        $updateData = array_filter($validatedData, function ($value) {
-            return !is_null($value);
-        });
-    
-        $aktivitas->update($updateData);
-    
-        return response()->json(['message' => 'update activities success'], Response::HTTP_OK);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id)
     {
-        $aktivitas = activities::find($id);
+        $aktivitas = Activities::find($id);
 
         if (!$aktivitas) {
             return response()->json(['message' => 'activities not found'], Response::HTTP_NOT_FOUND);
