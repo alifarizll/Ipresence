@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\users;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 
 class AuthController extends Controller
@@ -17,23 +20,44 @@ class AuthController extends Controller
         'email' => 'required|email',
     ]);
 
-    // Mencari pengguna berdasarkan nama_lengkap dan email
     $user = users::where('username', $request->username)
                 ->where('email', $request->email)
                 ->first();
 
     if (!$user) {
-        return response()->json(['error' => 'email atau nama lengkap salah'], 401);
+        Log::warning('Failed login attempt', ['username' => $request->username, 'ip' => $request->ip()]);
+
+        return response()->json(['error' => 'Username atau Email anda salah salah'], 401);
+    }
+
+    Log::info('Successful login', ['username' => $request->username, 'ip' => $request->ip()]);
+
+    try {
+        // Buat token JWT
+        $token = JWTAuth::fromUser($user);
+    } catch (JWTException $e) {
+        return response()->json(['error' => 'Tidak dapat membuat token'], 500);
     }
 
     // Mengirim respons berdasarkan jenis pengguna
-    if ($user->usertype === 'admin') {
-        return response()->json(['message' => 'Successfully logged in', 'user' => $user, 'role' => 'admin']);
-    } else if ($user->usertype === 'user') {
-        return response()->json(['message' => 'Successfully logged in', 'user' => $user, 'role' => 'user']);
-    } else {
-        return response()->json(['error' => 'Jenis pengguna tidak dikenali'], 401);
-    }
+    return response()->json([
+        'message' => 'Successfully logged in',
+        'user' => $user,
+        'role' => $user->usertype,
+        'token' => $token
+    ]);
 }
+
+    public function logoutUser(Request $request)
+    {
+        try {
+            // Invalidate the token
+            JWTAuth::invalidate(JWTAuth::getToken());
+            Log::info('Successful logout', ['username' => $request->username, 'ip' => $request->ip()]);
+            return response()->json(['message' => 'Successfully logged out']);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['error' => 'Failed to logout, please try again'], 500);
+        }
+    }
 
 }

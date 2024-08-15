@@ -17,9 +17,17 @@ Route::get('/user', function (Request $request) {
 
 //posts
 
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::apiResource('/users', UsersController::class); //ini bisa buat nambah foto user , bisa juga hapus user
+    Route::post('/logoutUser', [AuthController::class, 'logoutUser'])->middleware('auth:api');  //ini untuk logout
+
+    // Semua route di dalam group ini akan dilindungi oleh JWT
+});
 
 Route::apiResource('/roles', RolesController::class); 
-Route::apiResource('/users', UsersController::class); //ini bisa buat nambah foto user , bisa juga hapus user
 Route::post('/createUser', [UsersController::class, 'createUser']);   // ini untuk menambahkan user
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('activities', activitiescontroller::class);  // ini untuk menambahkan aktivitas
