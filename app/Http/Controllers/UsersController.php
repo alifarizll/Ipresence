@@ -68,6 +68,7 @@ class UsersController extends Controller
             'tanggal_bergabung' => 'required|date',
             'asal_sekolah' => 'required|string',
             'img' => 'required|string',
+            'usertype' => 'required|string',
         ]);
 
         try {
