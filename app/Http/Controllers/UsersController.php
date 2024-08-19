@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Users;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
 
 class UsersController extends Controller
 {
@@ -14,7 +18,6 @@ class UsersController extends Controller
      */
     public function index()
     {
-        // Mengambil semua user dengan relasi roles
         $users = Users::with('roles')->get();
         return response()->json($users, 200);
     }
@@ -23,36 +26,36 @@ class UsersController extends Controller
      * Show the form for creating a new resource.
      */
     public function createUser(Request $request)
-    {
-        try {
-            // Validasi input
-            $validated = $request->validate([
-                'nisn' => 'required|integer',
-                'email' => 'required|email',
-                'username' => 'required|string',
-                'nama_lengkap' => 'required|string',
-                'role_id' => 'required|integer',
-                'asal_sekolah' => 'required|string',
-            ]);
+{
+    try {
+        $validated = $request->validate([
+            'nisn' => 'required|integer',
+            'email' => 'required|email',
+            'username' => 'required|string',
+            'nama_lengkap' => 'required|string',
+            'role_id' => 'required|integer',
+            'asal_sekolah' => 'required|string',
+        ]);
 
-            // Membuat user baru
-            $user = Users::create([
-                'nisn' => $validated['nisn'],
-                'username' => $validated['username'] ?? null,
-                'email' => $validated['email'] ?? 'tidak diketahui',
-                'nama_lengkap' => $validated['nama_lengkap'] ?? 'tidak diketahui',
-                'asal_sekolah' => $validated['asal_sekolah'] ?? 'tidak diketahui',
-                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
-                'role_id' => $validated['role_id'] ?? 1,
-                'usertype' => 'user',
-                'img' => $validated['img'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
-            ]);
+        $user = Users::create([
+            'nisn' => $validated['nisn'],
+            'username' => $validated['username'] ?? null,
+            'email' => $validated['email'] ?? 'tidak diketahui',
+            'nama_lengkap' => $validated['nama_lengkap'] ?? 'tidak diketahui',
+            'asal_sekolah' => $validated['asal_sekolah'] ?? 'tidak diketahui',
+            'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
+            'role_id' => $validated['role_id'] ?? 1,
+            'usertype' => 'user',
+            'img' => 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+        ]);
 
-            return response()->json(['message' => 'success', 'data' => $user], Response::HTTP_CREATED);
-        } catch (ValidationException $e) {
-            return response()->json(['message' => 'Missing or invalid field', 'error' => $e->getMessage()], 404);
-        }
+        return response()->json(['message' => 'success', 'data' => $user], Response::HTTP_CREATED);
+    } catch (ValidationException $e) {
+        return response()->json(['message' => 'Missing or invalid field', 'error' => $e->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Server Error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
 
     /**
      * Store a newly created resource in storage.
@@ -64,15 +67,29 @@ class UsersController extends Controller
             'email' => 'required|email',
             'username' => 'required|string',
             'nama_lengkap' => 'required|string',
-            'role_id' => 'required|integer',
-            'tanggal_bergabung' => 'required|date',
-            'asal_sekolah' => 'required|string',
-            'img' => 'required|string',
-            'usertype' => 'required|string',
+            'role_id' => 'nullable|integer',
+            'tanggal_bergabung' => 'nullable|date',
+            'asal_sekolah' => 'nullable|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'usertype' => 'nullable|string',
+
         ]);
 
+        $image = $request->file('img');
+        $image->storeAs('public/posts', $image->hashName());
+
         try {
-            $user = Users::create($validated);
+            $user = Users::create([
+                'nisn' => $validated['nisn'],
+                'username' => $validated['username'] ?? null,
+                'email' => $validated['email'] ?? 'tidak diketahui',
+                'nama_lengkap' => $validated['nama_lengkap'] ?? 'tidak diketahui',
+                'asal_sekolah' => $validated['asal_sekolah'] ?? 'tidak diketahui',
+                'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
+                'role_id' => $validated['role_id'] ?? 1,
+                'usertype' => $validated['usertype'] ?? 'user',
+                'img' => $image->hashName() ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+            ]);
             return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Tidak dapat input data', 'error' => $e->getMessage()], 500);
@@ -95,26 +112,61 @@ class UsersController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $user = Users::find($id);
-        if (!$user) {
-            return response()->json(['message' => 'Post not found'], 404);
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'nisn' => 'nullable|integer',
+            'email' => 'nullable|email',
+            'username' => 'nullable|string',
+            'nama_lengkap' => 'nullable|string',
+            'role_id' => 'nullable|integer',
+            'asal_sekolah' => 'nullable|string',
+            'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'usertype' => 'nullable|string',
+            'tanggal_bergabung' => 'nullable|date',
+        ]);
+
+
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $user->nisn = $request->nisn ?? $user->nisn;
-        $user->email = $request->email ?? $user->email;
-        $user->username = $request->username ?? $user->username;
-        $user->nama_lengkap = $request->nama_lengkap ?? $user->nama_lengkap;
-        $user->tanggal_bergabung = $request->tanggal_bergabung ?? $user->tanggal_bergabung;
-        $user->asal_sekolah = $request->asal_sekolah ?? $user->asal_sekolah;
-        $user->usertype = $request->usertype ?? $user->usertype;
-        $user->role_id = $request->role_id ?? $user->role_id;
-        $user->img = $request->img ?? $user->img;
+        $user = Users::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
-        $user->save();
+        if ($request->hasFile('img')) {
+            if ($user->img) {
+                Storage::delete('public/storage/posts/' . $user->img);
+            }
 
-        return response()->json($user, 200);
+            $image = $request->file('img');
+            $imageName = $image->hashName();
+            $image->storeAs('public/posts', $imageName);
+
+            $user->img = $imageName;
+        }
+
+        $user->update([
+            'nisn' => $request->nisn ?? $user->nisn,
+            'email' => $request->email ?? $user->email,
+            'username' => $request->username ?? $user->username,
+            'nama_lengkap' => $request->nama_lengkap ?? $user->nama_lengkap,
+            'role_id' => $request->role_id ?? $user->role_id,
+            'asal_sekolah' => $request->asal_sekolah ?? $user->asal_sekolah,
+            'usertype' => $request->usertype ?? $user->usertype,
+            'tanggal_bergabung' => $request->tanggal_bergabung ?? $user->tanggal_bergabung,
+        ]);
+
+        return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Server Error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -130,4 +182,6 @@ class UsersController extends Controller
 
         return response()->json(['message' => 'Post deleted'], 200);
     }
+
+
 }

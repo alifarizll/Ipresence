@@ -34,7 +34,7 @@ Route::apiResource('activities', activitiescontroller::class);  // ini untuk men
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
 
 Route::post('/loginUser', [AuthController::class, 'loginUser']);  //ini untuk login
-Route::post('/logoutUser', [AuthController::class, 'logoutUser']);  //ini untuk logout
+Route::post('/logoutUser', [AuthController::class, 'logoutUser']); //ini untuk logout
 
 
 

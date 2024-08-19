@@ -30,7 +30,7 @@ return new class extends Migration
                 $table->date('tanggal_bergabung');
                 $table->string('usertype');
                 $table->timestamps();
-                $table->string('img');
+                $table->string('img')->nullable();
 
                 $table->foreign('role_id')->references('id')->on('roles');
 
