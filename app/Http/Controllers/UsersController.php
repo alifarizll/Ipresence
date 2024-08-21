@@ -46,8 +46,9 @@ class UsersController extends Controller
             'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
             'role_id' => $validated['role_id'] ?? 1,
             'usertype' => 'user',
-            'img' => 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+            'img' => null,
         ]);
+        
 
         return response()->json(['message' => 'success', 'data' => $user], Response::HTTP_CREATED);
     } catch (ValidationException $e) {
@@ -88,7 +89,7 @@ class UsersController extends Controller
                 'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
                 'role_id' => $validated['role_id'] ?? 1,
                 'usertype' => $validated['usertype'] ?? 'user',
-                'img' => $image->hashName() ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                'img' => $image->hashName() ?? null,
             ]);
             return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
         } catch (\Exception $e) {
@@ -121,7 +122,7 @@ class UsersController extends Controller
             'nama_lengkap' => 'nullable|string',
             'role_id' => 'nullable|integer',
             'asal_sekolah' => 'nullable|string',
-            'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'img' => 'nullable|image',
             'usertype' => 'nullable|string',
             'tanggal_bergabung' => 'nullable|date',
         ]);
@@ -140,13 +141,13 @@ class UsersController extends Controller
         if ($request->hasFile('img')) {
             if ($user->img) {
                 Storage::delete('public/storage/posts/' . $user->img);
-            }
+            } 
 
             $image = $request->file('img');
             $imageName = $image->hashName();
             $image->storeAs('public/posts', $imageName);
 
-            $user->img = $imageName;
+            $user->img = $imageName ?? $user->img;
         }
 
         $user->update([
@@ -183,5 +184,91 @@ class UsersController extends Controller
         return response()->json(['message' => 'Post deleted'], 200);
     }
 
+
+    public function uploadphoto(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'img' => 'nullable|image',
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+    
+            $user = Users::find($id);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }    
+                $image = $request->file('img');
+                $imageName = $image->hashName();
+                $image->storeAs('public/posts', $imageName);
+    
+                $user->img = $imageName ?? $user->img;
+            
+    
+            $user->update([
+                'nisn' => $request->nisn ?? $user->nisn,
+                'email' => $request->email ?? $user->email,
+                'username' => $request->username ?? $user->username,
+                'nama_lengkap' => $request->nama_lengkap ?? $user->nama_lengkap,
+                'role_id' => $request->role_id ?? $user->role_id,
+                'asal_sekolah' => $request->asal_sekolah ?? $user->asal_sekolah,
+                'usertype' => $request->usertype ?? $user->usertype,
+                'tanggal_bergabung' => $request->tanggal_bergabung ?? $user->tanggal_bergabung,
+            ]);
+    
+            return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+    
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Server Error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function updatephoto(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+    
+            $user = Users::find($id);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+    
+            if ($request->hasFile('img')) {
+                if ($user->img) {
+                    Storage::delete('public/storage/posts/' . $user->img);
+                } 
+    
+                $image = $request->file('img');
+                $imageName = $image->hashName();
+                $image->storeAs('public/posts', $imageName);
+    
+                $user->img = $imageName ?? $user->img;
+            }
+    
+            $user->update([
+                'nisn' => $request->nisn ?? $user->nisn,
+                'email' => $request->email ?? $user->email,
+                'username' => $request->username ?? $user->username,
+                'nama_lengkap' => $request->nama_lengkap ?? $user->nama_lengkap,
+                'role_id' => $request->role_id ?? $user->role_id,
+                'asal_sekolah' => $request->asal_sekolah ?? $user->asal_sekolah,
+                'usertype' => $request->usertype ?? $user->usertype,
+                'tanggal_bergabung' => $request->tanggal_bergabung ?? $user->tanggal_bergabung,
+            ]);
+    
+            return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+    
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Server Error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
