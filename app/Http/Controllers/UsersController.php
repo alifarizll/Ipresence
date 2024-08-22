@@ -140,7 +140,7 @@ class UsersController extends Controller
 
         if ($request->hasFile('img')) {
             if ($user->img) {
-                Storage::delete('public/storage/posts/' . $user->img);
+                Storage::delete('public/posts/' . $user->img);
             } 
 
             $image = $request->file('img');
@@ -243,7 +243,7 @@ class UsersController extends Controller
     
             if ($request->hasFile('img')) {
                 if ($user->img) {
-                    Storage::delete('public/storage/posts/' . $user->img);
+                    Storage::delete('public/posts/' . $user->img);
                 } 
     
                 $image = $request->file('img');
