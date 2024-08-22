@@ -30,6 +30,7 @@ Route::post('/createUser', [UsersController::class, 'createUser']);   // ini unt
 Route::apiResource('tasks', TaskController::class);
 Route::apiResource('/users', UsersController::class); //ini bisa buat nambah foto user , bisa juga hapus user
 
+
 Route::apiResource('activities', activitiescontroller::class);  // ini untuk menambahkan aktivitas
 Route::patch('/activities/{id}/status', [ActivitiesController::class, 'updateStatus']);
 

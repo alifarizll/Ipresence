@@ -33,14 +33,14 @@ class UsersController extends Controller
             'email' => 'required|email',
             'username' => 'required|string',
             'nama_lengkap' => 'required|string',
-            'role_id' => 'required|integer',
+            'role_id' => 'nullable|integer',
             'asal_sekolah' => 'required|string',
         ]);
 
         $user = Users::create([
             'nisn' => $validated['nisn'],
-            'username' => $validated['username'] ?? null,
-            'email' => $validated['email'] ?? 'tidak diketahui',
+            'username' => $validated['username'],
+            'email' => $validated['email'],
             'nama_lengkap' => $validated['nama_lengkap'] ?? 'tidak diketahui',
             'asal_sekolah' => $validated['asal_sekolah'] ?? 'tidak diketahui',
             'tanggal_bergabung' => $validated['tanggal_bergabung'] ?? now(),
@@ -106,7 +106,7 @@ class UsersController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-        return response()->json($user);
+        return response()->json( ['data' => $user->img], 200);
     }
 
     /**
@@ -147,7 +147,7 @@ class UsersController extends Controller
             $imageName = $image->hashName();
             $image->storeAs('public/posts', $imageName);
 
-            $user->img = $imageName ?? $user->img;
+            $user->img = $imageName ?? $user->Users::find($id == 39)->img;
         }
 
         $user->update([
