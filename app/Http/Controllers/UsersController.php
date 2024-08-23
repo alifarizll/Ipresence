@@ -106,7 +106,7 @@ class UsersController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-        return response()->json( ['data' => $user], 200);
+        return response()->json( ['data' => $user->img], 200);
     }
 
     /**
@@ -145,7 +145,7 @@ class UsersController extends Controller
 
             $image = $request->file('img');
             $imageName = $image->hashName();
-            $image->storeAs('public/posts', $imageName);
+            $image->storeAs('public/posts', $imageName , 'public');
 
             $user->img = $imageName ?? $user->Users::find($id == 39)->img;
         }
@@ -229,7 +229,7 @@ class UsersController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'img' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             ]);
     
             if ($validator->fails()) {
@@ -244,13 +244,19 @@ class UsersController extends Controller
             if ($request->hasFile('img')) {
                 if ($user->img) {
                     Storage::delete('public/posts/' . $user->img);
-                } 
+
+                } else {
+                    $lama = $user->img;
+                    Storage::delete('public/posts/' . $lama);
+                }
     
                 $image = $request->file('img');
+                log::info($image);
                 $imageName = $image->hashName();
                 $image->storeAs('public/posts', $imageName);
     
                 $user->img = $imageName ?? $user->img;
+
             }
     
             $user->update([
