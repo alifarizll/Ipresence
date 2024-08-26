@@ -122,7 +122,6 @@ class UsersController extends Controller
             'nama_lengkap' => 'nullable|string',
             'role_id' => 'nullable|integer',
             'asal_sekolah' => 'nullable|string',
-            'img' => 'nullable|image',
             'usertype' => 'nullable|string',
             'tanggal_bergabung' => 'nullable|date',
         ]);
@@ -138,18 +137,6 @@ class UsersController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        if ($request->hasFile('img')) {
-            if ($user->img) {
-                Storage::delete('public/posts/' . $user->img);
-            } 
-
-            $image = $request->file('img');
-            $imageName = $image->hashName();
-            $image->storeAs('public/posts', $imageName , 'public');
-
-            $user->img = $imageName ?? $user->Users::find($id == 39)->img;
-        }
-
         $user->update([
             'nisn' => $request->nisn ?? $user->nisn,
             'email' => $request->email ?? $user->email,
@@ -159,6 +146,7 @@ class UsersController extends Controller
             'asal_sekolah' => $request->asal_sekolah ?? $user->asal_sekolah,
             'usertype' => $request->usertype ?? $user->usertype,
             'tanggal_bergabung' => $request->tanggal_bergabung ?? $user->tanggal_bergabung,
+            'img' => $request->img ?? $user->img,
         ]);
 
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
